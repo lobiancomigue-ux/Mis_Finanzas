@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mis Finanzas">
+<title>Mis Finanzas</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg: #0C0E16;
+  --surface: #13151F;
+  --surface2: #1A1D2B;
+  --surface3: #222536;
+  --border: #2A2D3E;
+  --accent: #7C6AF7;
+  --accent2: #5B51C8;
+  --green: #22D3A0;
+  --red: #F45B69;
+  --amber: #F5A623;
+  --blue: #60A5FA;
+  --text: #E8EAF6;
+  --text2: #9095B0;
+  --text3: #5A5F78;
+  --serif: 'DM Serif Display', Georgia, serif;
+  --sans: 'DM Sans', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  z-index: 200;
+  padding: env(safe-area-inset-top, 0) 0 0;
+}
+.nav-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px;
+}
+.nav-title { font-family: var(--serif); font-size: 20px; color: var(--text); letter-spacing: -0.3px; }
+.nav-month {
+  font-size: 12px; font-weight: 600; color: var(--accent);
+  background: #7C6AF718; border: 1px solid #7C6AF730;
+  border-radius: 20px; padding: 4px 12px; cursor: pointer;
+}
+
+/* ── TABS ── */
+.tabs {
+  display: flex; overflow-x: auto; scrollbar-width: none;
+  border-bottom: 1px solid var(--border);
+  padding: 0 8px;
+  gap: 0;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  flex-shrink: 0; background: none; border: none;
+  color: var(--text3); font-family: var(--sans);
+  font-size: 13px; font-weight: 600;
+  padding: 10px 14px;
+  border-bottom: 2px solid transparent;
+  cursor: pointer; transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── MAIN ── */
+.main {
+  padding-top: 110px;
+  padding-bottom: 30px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ── CARDS ── */
+.kpi-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; padding: 16px 16px 0;
+}
+.kpi-wide { grid-column: 1 / -1; }
+.kpi {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 16px;
+  position: relative; overflow: hidden;
+}
+.kpi::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+}
+.kpi.green::before { background: var(--green); }
+.kpi.red::before { background: var(--red); }
+.kpi.accent::before { background: var(--accent); }
+.kpi.amber::before { background: var(--amber); }
+.kpi-label { font-size: 10px; font-weight: 700; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+.kpi-val { font-family: var(--serif); font-size: 18px; font-weight: 400; }
+.kpi-val.green { color: var(--green); }
+.kpi-val.red { color: var(--red); }
+.kpi-val.accent { color: var(--accent); }
+.kpi-val.amber { color: var(--amber); }
+.kpi-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+/* ── SECTION ── */
+.section { padding: 18px 16px 0; }
+.section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-family: var(--serif); font-size: 16px; color: var(--text);
+  display: flex; align-items: center; gap: 8px;
+}
+.section-title::before {
+  content: ''; display: block;
+  width: 3px; height: 16px; border-radius: 2px;
+}
+.section-title.green::before { background: var(--green); }
+.section-title.red::before { background: var(--red); }
+.section-title.accent::before { background: var(--accent); }
+.section-title.amber::before { background: var(--amber); }
+.section-title.blue::before { background: var(--blue); }
+
+/* ── FORM ── */
+.form-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px;
+  margin-bottom: 14px;
+}
+.form-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.form-row:last-child { margin-bottom: 0; }
+.inp {
+  flex: 1; min-width: 100px;
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text); font-family: var(--sans); font-size: 14px;
+  padding: 10px 12px; outline: none;
+  transition: border-color 0.2s;
+}
+.inp:focus { border-color: var(--accent); }
+.inp::placeholder { color: var(--text3); }
+select.inp option { background: var(--surface2); }
+.btn {
+  border-radius: 10px; padding: 10px 16px;
+  font-family: var(--sans); font-size: 13px; font-weight: 700;
+  cursor: pointer; border: none; transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn-green { background: #22D3A018; border: 1px solid #22D3A040; color: var(--green); }
+.btn-red   { background: #F45B6918; border: 1px solid #F45B6940; color: var(--red); }
+.btn-accent{ background: #7C6AF718; border: 1px solid #7C6AF740; color: var(--accent); }
+.btn-amber { background: #F5A62318; border: 1px solid #F5A62340; color: var(--amber); }
+.btn:active { opacity: 0.7; transform: scale(0.97); }
+
+/* ── ITEM ROWS ── */
+.item {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px; gap: 8px;
+}
+.item-left { flex: 1; min-width: 0; }
+.item-desc { font-size: 14px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.item-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.item-amount { font-size: 14px; font-weight: 700; white-space: nowrap; }
+.del { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 20px; line-height: 1; padding: 2px 4px; }
+.del:active { color: var(--red); }
+
+/* ── BADGE ── */
+.badge {
+  display: inline-block; border-radius: 6px;
+  padding: 2px 8px; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.3px; white-space: nowrap;
+}
+
+/* ── BARRA PROGRESO ── */
+.prog-wrap { background: var(--surface3); border-radius: 4px; height: 5px; margin-top: 6px; }
+.prog-bar { border-radius: 4px; height: 5px; transition: width 0.4s; }
+
+/* ── EMPTY ── */
+.empty { font-size: 13px; color: var(--text3); font-style: italic; padding: 8px 0 4px; text-align: center; }
+
+/* ── TOTALS ── */
+.total-row {
+  display: flex; justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--surface3); border-radius: 10px;
+  font-size: 13px; font-weight: 700; margin-top: 6px;
+}
+
+/* ── TABLA RESUMEN ── */
+.tabla { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tabla th {
+  text-align: right; padding: 7px 10px;
+  color: var(--text3); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.8px; text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+.tabla th:first-child { text-align: left; }
+.tabla td { padding: 9px 10px; text-align: right; border-bottom: 1px solid #1A1D2B; }
+.tabla td:first-child { text-align: left; }
+.tabla tr.active-row td { background: var(--surface2); }
+.tabla tr { cursor: pointer; transition: background 0.1s; }
+.tabla tr:hover td { background: var(--surface2); }
+
+/* ── CONFIG CARDS ── */
+.cfg-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px; margin-bottom: 12px;
+}
+.cfg-label { font-size: 12px; color: var(--text3); font-weight: 600; margin-bottom: 6px; }
+.cfg-val { font-family: var(--serif); font-size: 22px; color: var(--accent); margin-bottom: 8px; }
+
+/* ── MODAL MES ── */
+.overlay {
+  position: fixed; inset: 0; background: #00000088;
+  z-index: 500; display: flex; align-items: flex-end;
+}
+.modal {
+  background: var(--surface); border-radius: 20px 20px 0 0;
+  width: 100%; padding: 20px 16px 40px;
+  max-height: 70vh; overflow-y: auto;
+}
+.modal-title { font-family: var(--serif); font-size: 18px; margin-bottom: 16px; color: var(--text); }
+.mes-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.mes-opt {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 8px;
+  text-align: center; font-size: 13px; font-weight: 600;
+  color: var(--text2); cursor: pointer;
+}
+.mes-opt.active { background: #7C6AF718; border-color: var(--accent); color: var(--accent); }
+
+/* ── TIPO CHIPS ── */
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip {
+  padding: 7px 14px; border-radius: 20px; font-size: 13px; font-weight: 600;
+  cursor: pointer; border: 1px solid transparent; transition: all 0.15s;
+  color: var(--text2); background: var(--surface3); border-color: var(--border);
+}
+.chip.sel-Ingreso { background: #22D3A018; border-color: var(--green); color: var(--green); }
+.chip.sel-Gasto { background: #F45B6918; border-color: var(--red); color: var(--red); }
+.chip.sel-Pago\ deuda { background: #F5A62318; border-color: var(--amber); color: var(--amber); }
+
+/* ── SEPARADOR ── */
+.sep { height: 1px; background: var(--border); margin: 6px 0; }
+
+/* ── HINT ── */
+.hint { font-size: 11px; color: var(--text3); text-align: center; margin-top: 8px; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-inner">
+    <span class="nav-title">Mis Finanzas</span>
+    <span class="nav-month" id="nav-month-btn" onclick="openMesModal()">Mayo 2026 ▾</span>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="setTab('resumen')">📊 Resumen</button>
+    <button class="tab" onclick="setTab('movimientos')">📋 Movimientos</button>
+    <button class="tab" onclick="setTab('proyeccion')">🎯 Proyección</button>
+    <button class="tab" onclick="setTab('deudas')">🔴 Deudas</button>
+    <button class="tab" onclick="setTab('config')">⚙️ Config</button>
+  </div>
+</div>
+
+<div class="main" id="main-content"></div>
+
+<!-- Modal Mes -->
+<div class="overlay hidden" id="mes-overlay" onclick="closeMesModal(this)">
+  <div class="modal">
+    <div class="modal-title">Seleccioná el mes</div>
+    <div class="mes-grid" id="mes-grid"></div>
+  </div>
+</div>
+
+<script>
+const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const ANIO = new Date().getFullYear();
+const CATS = ["Alimentación","Transporte","Servicios","Educación","Deudas/Cuotas","Ocasional","Otros"];
+const CAT_COLORS = {
+  "Alimentación":"#F97316","Transporte":"#60A5FA","Servicios":"#A78BFA",
+  "Educación":"#22D3A0","Deudas/Cuotas":"#F45B69","Ocasional":"#F5A623","Otros":"#9095B0"
+};
+const TIPO_COLOR = { "Ingreso": "var(--green)", "Gasto": "var(--red)", "Pago deuda": "var(--amber)" };
+
+let mesSelec = new Date().getMonth();
+let tabActual = "resumen";
+
+// ── Storage ──
+function load() { try { return JSON.parse(localStorage.getItem("mf_v2") || "{}"); } catch { return {}; } }
+function save(d) { localStorage.setItem("mf_v2", JSON.stringify(d)); }
+let DB = load();
+
+function clave(m) { return `${ANIO}-${m ?? mesSelec}`; }
+
+function getCfg() { return DB._cfg || { deuda_total: 0, pago_mensual: 0, banco: 0, efectivo: 0 }; }
+function saveCfg(c) { DB._cfg = c; save(DB); }
+
+function getMov(m) { return (DB[clave(m)] || {}).movimientos || []; }
+function getProy(m) { return (DB[clave(m)] || {}).proyeccion || {}; }
+function getGasFijos() { return DB._fijos || []; }
+
+function addMov(mov) {
+  const k = clave();
+  if (!DB[k]) DB[k] = {};
+  if (!DB[k].movimientos) DB[k].movimientos = [];
+  DB[k].movimientos.unshift(mov);
+  save(DB);
+}
+function delMov(idx) {
+  const k = clave();
+  DB[k].movimientos.splice(idx, 1);
+  save(DB);
+}
+function setProy(cat, val) {
+  const k = clave();
+  if (!DB[k]) DB[k] = {};
+  if (!DB[k].proyeccion) DB[k].proyeccion = {};
+  DB[k].proyeccion[cat] = Number(val) || 0;
+  save(DB);
+}
+
+// ── Helpers ──
+function fGs(n) {
+  if (n === null || n === undefined || n === "") return "—";
+  const abs = Math.abs(Number(n));
+  const fmt = "₲ " + abs.toLocaleString("es-PY");
+  return Number(n) < 0 ? "(" + fmt + ")" : fmt;
+}
+function badge(cat) {
+  const c = CAT_COLORS[cat] || "#9095B0";
+  return `<span class="badge" style="background:${c}20;color:${c};border:1px solid ${c}40">${cat}</span>`;
+}
+function today() {
+  const d = new Date();
+  return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}`;
+}
+
+// ── Cálculos ──
+function calcMes(m) {
+  const movs = getMov(m);
+  let ing = 0, gas = 0, pagDeuda = 0;
+  const porCat = {};
+  CATS.forEach(c => porCat[c] = 0);
+  movs.forEach(mv => {
+    if (mv.tipo === "Ingreso") ing += mv.monto;
+    else if (mv.tipo === "Gasto") { gas += mv.monto; porCat[mv.cat] = (porCat[mv.cat]||0) + mv.monto; }
+    else if (mv.tipo === "Pago deuda") pagDeuda += mv.monto;
+  });
+  return { ing, gas, pagDeuda, porCat };
+}
+
+function deudaRestante() {
+  const cfg = getCfg();
+  let deuda = Number(cfg.deuda_total) || 0;
+  // Recorrer todos los meses y restar pagos
+  Object.keys(DB).forEach(k => {
+    if (k.startsWith("_")) return;
+    const movs = (DB[k].movimientos || []);
+    movs.forEach(mv => { if (mv.tipo === "Pago deuda") deuda -= mv.monto; });
+  });
+  return Math.max(0, deuda);
+}
+
+// ── Nav mes ──
+function updateNavMes() {
+  document.getElementById("nav-month-btn").textContent = MESES[mesSelec].slice(0,3) + " " + ANIO + " ▾";
+}
+
+// ── Modal mes ──
+function openMesModal() {
+  const g = document.getElementById("mes-grid");
+  g.innerHTML = MESES.map((m,i) =>
+    `<div class="mes-opt ${i===mesSelec?"active":""}" onclick="selectMes(${i})">${m}</div>`
+  ).join("");
+  document.getElementById("mes-overlay").classList.remove("hidden");
+}
+function closeMesModal(el) { if (el === document.getElementById("mes-overlay")) document.getElementById("mes-overlay").classList.add("hidden"); }
+function selectMes(i) {
+  mesSelec = i;
+  updateNavMes();
+  document.getElementById("mes-overlay").classList.add("hidden");
+  render();
+}
+
+// ── Tabs ──
+function setTab(t) {
+  tabActual = t;
+  document.querySelectorAll(".tab").forEach((b,i) =>
+    b.classList.toggle("active", ["resumen","movimientos","proyeccion","deudas","config"][i] === t)
+  );
+  render();
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER RESUMEN
+// ═══════════════════════════════════════════════════════
+function renderResumen() {
+  const cfg = getCfg();
+  const { ing, gas, pagDeuda, porCat } = calcMes(mesSelec);
+  const saldo = ing - gas - pagDeuda;
+  const deuda = deudaRestante();
+  const capitalTotal = Number(cfg.banco||0) + Number(cfg.efectivo||0);
+
+  let catBars = "";
+  CATS.filter(c => porCat[c] > 0).forEach(c => {
+    const pct = gas > 0 ? Math.min((porCat[c]/gas)*100,100) : 0;
+    catBars += `
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+          ${badge(c)}
+          <span style="font-size:13px;font-weight:600;color:var(--text)">${fGs(porCat[c])}</span>
+        </div>
+        <div class="prog-wrap"><div class="prog-bar" style="width:${pct}%;background:${CAT_COLORS[c]}"></div></div>
+      </div>`;
+  });
+
+  // Resumen anual mini
+  let anualRows = "";
+  MESES.forEach((m,i) => {
+    const d = calcMes(i);
+    if (d.ing === 0 && d.gas === 0 && d.pagDeuda === 0) return;
+    const s = d.ing - d.gas - d.pagDeuda;
+    anualRows += `<tr class="${i===mesSelec?"active-row":""}" onclick="selectMes(${i})">
+      <td style="color:${i===mesSelec?"var(--accent)":"var(--text2)"};font-weight:${i===mesSelec?700:400}">${m.slice(0,3)}</td>
+      <td style="color:var(--green)">${fGs(d.ing)}</td>
+      <td style="color:var(--red)">${fGs(d.gas)}</td>
+      <td style="color:${s>=0?"var(--accent)":"var(--red)"};font-weight:700">${fGs(s)}</td>
+    </tr>`;
+  });
+
+  return `
+    <div class="kpi-grid">
+      <div class="kpi green">
+        <div class="kpi-label">Ingresos del mes</div>
+        <div class="kpi-val green">${fGs(ing)}</div>
+      </div>
+      <div class="kpi red">
+        <div class="kpi-label">Gastos del mes</div>
+        <div class="kpi-val red">${fGs(gas)}</div>
+      </div>
+      <div class="kpi ${saldo>=0?"accent":"red"} kpi-wide">
+        <div class="kpi-label">Saldo libre para gastar</div>
+        <div class="kpi-val ${saldo>=0?"accent":"red"}">${fGs(saldo)}</div>
+        <div class="kpi-sub">Ingresos − Gastos − Pago deuda (${fGs(pagDeuda)})</div>
+      </div>
+      <div class="kpi amber">
+        <div class="kpi-label">Deuda restante</div>
+        <div class="kpi-val amber">${fGs(deuda)}</div>
+      </div>
+      <div class="kpi accent">
+        <div class="kpi-label">Capital total</div>
+        <div class="kpi-val accent">${fGs(capitalTotal)}</div>
+        <div class="kpi-sub">Banco + Efectivo</div>
+      </div>
+    </div>
+
+    ${gas > 0 ? `
+    <div class="section">
+      <div class="section-head">
+        <div class="section-title red">Por categoría</div>
+      </div>
+      <div class="form-card">${catBars}</div>
+    </div>` : ""}
+
+    ${anualRows ? `
+    <div class="section">
+      <div class="section-head">
+        <div class="section-title accent">Año ${ANIO}</div>
+      </div>
+      <div class="form-card" style="padding:8px 0">
+        <table class="tabla">
+          <thead><tr>
+            <th style="text-align:left;padding-left:14px">Mes</th>
+            <th>Ingresos</th><th>Gastos</th><th style="padding-right:14px">Saldo</th>
+          </tr></thead>
+          <tbody>${anualRows}</tbody>
+        </table>
+        <div class="hint">Tocá un mes para ver su detalle</div>
+      </div>
+    </div>` : ""}
+  `;
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER MOVIMIENTOS
+// ═══════════════════════════════════════════════════════
+let fTipo = "Ingreso";
+let fCat = CATS[0];
+
+function renderMovimientos() {
+  const movs = getMov(mesSelec);
+  const { ing, gas, pagDeuda } = calcMes(mesSelec);
+
+  let saldoAcum = 0;
+  const movsConSaldo = [...movs].reverse().map(mv => {
+    if (mv.tipo === "Ingreso") saldoAcum += mv.monto;
+    else saldoAcum -= mv.monto;
+    return { ...mv, saldo: saldoAcum };
+  }).reverse();
+
+  const rows = movsConSaldo.length === 0
+    ? `<div class="empty">Sin movimientos en ${MESES[mesSelec]}</div>`
+    : movsConSaldo.map((mv, i) => {
+      const col = TIPO_COLOR[mv.tipo] || "var(--text)";
+      const signo = mv.tipo === "Ingreso" ? "+" : "−";
+      return `
+        <div class="item">
+          <div class="item-left">
+            <div class="item-desc">${mv.desc}</div>
+            <div class="item-meta">${mv.fecha} · ${mv.tipo === "Gasto" ? mv.cat : mv.tipo}</div>
+          </div>
+          <div class="item-right">
+            <div>
+              <div class="item-amount" style="color:${col};text-align:right">${signo} ${fGs(mv.monto)}</div>
+              <div style="font-size:10px;color:var(--text3);text-align:right">Saldo: ${fGs(mv.saldo)}</div>
+            </div>
+            <button class="del" onclick="doDelMov(${i})">×</button>
+          </div>
+        </div>`;
+    }).join("");
+
+  return `
+    <div class="kpi-grid">
+      <div class="kpi green"><div class="kpi-label">Ingresos</div><div class="kpi-val green">${fGs(ing)}</div></div>
+      <div class="kpi red"><div class="kpi-label">Gastos</div><div class="kpi-val red">${fGs(gas)}</div></div>
+      ${pagDeuda > 0 ? `<div class="kpi amber kpi-wide"><div class="kpi-label">Pago deuda este mes</div><div class="kpi-val amber">${fGs(pagDeuda)}</div></div>` : ""}
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div class="section-title accent">Nuevo movimiento</div></div>
+      <div class="form-card">
+        <div class="form-row">
+          <div class="chips">
+            ${["Ingreso","Gasto","Pago deuda"].map(t =>
+              `<div class="chip ${fTipo===t?"sel-"+t:""}" onclick="setTipo('${t}')">${t}</div>`
+            ).join("")}
+          </div>
+        </div>
+        <div class="form-row">
+          <input class="inp" id="mov-desc" placeholder="Descripción" style="flex:2" />
+          <input class="inp" id="mov-monto" type="number" placeholder="Monto ₲" style="min-width:120px" />
+        </div>
+        <div class="form-row" id="cat-row" style="${fTipo!=="Gasto"?"display:none":""}">
+          <select class="inp" id="mov-cat">
+            ${CATS.map(c => `<option ${c===fCat?"selected":""}>${c}</option>`).join("")}
+          </select>
+        </div>
+        <div class="form-row">
+          <input class="inp" id="mov-fecha" type="date" style="flex:1" />
+          <button class="btn btn-accent" onclick="doAddMov()">+ Agregar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div class="section-title red">Movimientos — ${MESES[mesSelec]}</div></div>
+      ${rows}
+    </div>
+  `;
+}
+
+function setTipo(t) { fTipo = t; render(); }
+
+function doAddMov() {
+  const desc = document.getElementById("mov-desc").value.trim();
+  const monto = Number(document.getElementById("mov-monto").value);
+  const cat = document.getElementById("mov-cat")?.value || "";
+  const fechaInp = document.getElementById("mov-fecha").value;
+  let fecha = today();
+  if (fechaInp) {
+    const [y,m,d] = fechaInp.split("-");
+    fecha = `${d}/${m}/${y}`;
+  }
+  if (!desc || !monto) return;
+  addMov({ desc, monto, tipo: fTipo, cat: fTipo === "Gasto" ? cat : "", fecha });
+  render();
+  setTimeout(() => {
+    const d = document.getElementById("mov-desc");
+    const m = document.getElementById("mov-monto");
+    if (d) d.value = "";
+    if (m) m.value = "";
+  }, 10);
+}
+
+function doDelMov(i) {
+  if (confirm("¿Eliminar este movimiento?")) { delMov(i); render(); }
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER PROYECCIÓN
+// ═══════════════════════════════════════════════════════
+function renderProyeccion() {
+  const { porCat, gas } = calcMes(mesSelec);
+  const proy = getProy(mesSelec);
+  const totalProy = CATS.reduce((s,c) => s + Number(proy[c]||0), 0);
+
+  const cards = CATS.map(cat => {
+    const real = porCat[cat] || 0;
+    const p = Number(proy[cat] || 0);
+    const diff = real - p;
+    const pct = p > 0 ? Math.min((real/p)*100, 100) : 0;
+    const col = CAT_COLORS[cat];
+    return `
+      <div class="form-card" style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          ${badge(cat)}
+          ${p > 0 && real > 0 ? `<span style="font-size:11px;font-weight:700;color:${diff>0?"var(--red)":"var(--green)"}">${diff>0?"▲":"▼"} ${fGs(Math.abs(diff))}</span>` : ""}
+        </div>
+        <div style="display:flex;gap:8px">
+          <div style="flex:1">
+            <div style="font-size:10px;color:var(--text3);margin-bottom:4px">PROYECTADO</div>
+            <input class="inp" type="number" placeholder="₲ 0"
+              value="${proy[cat]||""}"
+              style="color:var(--amber);width:100%;padding:8px 10px"
+              onchange="setProy('${cat}',this.value);renderPrUpdate()" />
+          </div>
+          <div style="flex:1">
+            <div style="font-size:10px;color:var(--text3);margin-bottom:4px">REAL</div>
+            <div class="inp" style="color:${real>p&&p>0?"var(--red)":"var(--green)"};font-weight:700;padding:8px 10px;background:var(--surface3)">${fGs(real)}</div>
+          </div>
+        </div>
+        ${p > 0 ? `
+        <div class="prog-wrap" style="margin-top:8px">
+          <div class="prog-bar" style="width:${pct}%;background:${real>p?"var(--red)":"var(--green)"}"></div>
+        </div>
+        <div style="font-size:10px;color:var(--text3);text-align:right;margin-top:2px">${Math.round(pct)}% ejecutado</div>` : ""}
+      </div>`;
+  }).join("");
+
+  return `
+    <div class="section">
+      <div class="section-head"><div class="section-title amber">Proyección — ${MESES[mesSelec]}</div></div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:14px">Ingresá cuánto estimás gastar por categoría y comparalo con lo real.</p>
+      ${cards}
+      ${totalProy > 0 ? `
+      <div class="form-card">
+        <div class="total-row" style="background:transparent;padding:0;margin-bottom:8px">
+          <span style="color:var(--text2)">Total proyectado</span>
+          <span style="color:var(--amber)">${fGs(totalProy)}</span>
+        </div>
+        <div class="total-row" style="background:transparent;padding:0">
+          <span style="color:var(--text2)">Total real</span>
+          <span style="color:${gas>totalProy?"var(--red)":"var(--green)"};font-weight:700">${fGs(gas)}</span>
+        </div>
+      </div>` : ""}
+    </div>
+  `;
+}
+
+function renderPrUpdate() {
+  // Actualiza sin hacer scroll
+  DB = load();
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER DEUDAS
+// ═══════════════════════════════════════════════════════
+function renderDeudas() {
+  const cfg = getCfg();
+  const deudaOrig = Number(cfg.deuda_total) || 0;
+  const deudaRest = deudaRestante();
+  const pagado = deudaOrig - deudaRest;
+  const pct = deudaOrig > 0 ? Math.min((pagado/deudaOrig)*100, 100) : 0;
+  const pagMes = Number(cfg.pago_mensual) || 0;
+  const mesesRestantes = pagMes > 0 ? Math.ceil(deudaRest / pagMes) : null;
+
+  // Historial de pagos
+  let pagos = [];
+  Object.keys(DB).sort().forEach(k => {
+    if (k.startsWith("_")) return;
+    const movs = (DB[k].movimientos || []);
+    movs.forEach(mv => {
+      if (mv.tipo === "Pago deuda") pagos.push({ ...mv, clave: k });
+    });
+  });
+  pagos = pagos.reverse();
+
+  const rows = pagos.length === 0
+    ? `<div class="empty">Sin pagos registrados aún</div>`
+    : pagos.slice(0,20).map(p => `
+      <div class="item">
+        <div class="item-left">
+          <div class="item-desc">${p.desc}</div>
+          <div class="item-meta">${p.fecha}</div>
+        </div>
+        <div class="item-right">
+          <div class="item-amount" style="color:var(--amber)">− ${fGs(p.monto)}</div>
+        </div>
+      </div>`).join("");
+
+  return `
+    <div class="kpi-grid">
+      <div class="kpi amber kpi-wide">
+        <div class="kpi-label">Deuda restante</div>
+        <div class="kpi-val amber">${fGs(deudaRest)}</div>
+        <div class="kpi-sub">de ${fGs(deudaOrig)} originales · ${Math.round(pct)}% pagado</div>
+        <div class="prog-wrap" style="margin-top:8px">
+          <div class="prog-bar" style="width:${pct}%;background:var(--green)"></div>
+        </div>
+      </div>
+      <div class="kpi green">
+        <div class="kpi-label">Pagado total</div>
+        <div class="kpi-val green">${fGs(pagado)}</div>
+      </div>
+      <div class="kpi accent">
+        <div class="kpi-label">Pago mensual</div>
+        <div class="kpi-val accent">${fGs(pagMes)}</div>
+      </div>
+      ${mesesRestantes ? `
+      <div class="kpi accent kpi-wide">
+        <div class="kpi-label">Tiempo estimado para saldar</div>
+        <div class="kpi-val accent">${mesesRestantes} ${mesesRestantes===1?"mes":"meses"}</div>
+      </div>` : ""}
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div class="section-title amber">Historial de pagos</div></div>
+      ${rows}
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER CONFIG
+// ═══════════════════════════════════════════════════════
+function renderConfig() {
+  const cfg = getCfg();
+
+  // Gastos fijos
+  const fijos = getGasFijos();
+  const fijoRows = fijos.map((f,i) => `
+    <div class="item">
+      <div class="item-left">
+        <div class="item-desc">${f.desc}</div>
+        <div class="item-meta">${f.cat}</div>
+      </div>
+      <div class="item-right">
+        <div class="item-amount" style="color:var(--red)">${fGs(f.monto)}</div>
+        <button class="del" onclick="doDelFijo(${i})">×</button>
+      </div>
+    </div>`).join("");
+  const totalFijos = fijos.reduce((s,f) => s+f.monto, 0);
+
+  return `
+    <div class="section">
+      <div class="section-head"><div class="section-title accent">Capital inicial</div></div>
+      <div class="form-card">
+        <div class="cfg-label">Capital en cuentas bancarias (₲)</div>
+        <input class="inp" type="number" value="${cfg.banco||0}" style="margin-bottom:12px;width:100%"
+          onchange="updateCfg('banco',this.value)" />
+        <div class="cfg-label">Capital en efectivo (₲)</div>
+        <input class="inp" type="number" value="${cfg.efectivo||0}" style="width:100%"
+          onchange="updateCfg('efectivo',this.value)" />
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div class="section-title amber">Deuda</div></div>
+      <div class="form-card">
+        <div class="cfg-label">Deuda total inicial (₲)</div>
+        <input class="inp" type="number" value="${cfg.deuda_total||0}" style="margin-bottom:12px;width:100%"
+          onchange="updateCfg('deuda_total',this.value)" />
+        <div class="cfg-label">Compromiso de pago mensual (₲)</div>
+        <input class="inp" type="number" value="${cfg.pago_mensual||0}" style="width:100%"
+          onchange="updateCfg('pago_mensual',this.value)" />
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div class="section-title red">Gastos fijos mensuales</div></div>
+      <div class="form-card">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Gastos que se repiten cada mes (alquiler, servicios, etc.)</div>
+        <div class="form-row">
+          <input class="inp" id="fijo-desc" placeholder="Descripción" style="flex:2" />
+          <input class="inp" id="fijo-monto" type="number" placeholder="Monto ₲" />
+        </div>
+        <div class="form-row">
+          <select class="inp" id="fijo-cat">
+            ${CATS.map(c => `<option>${c}</option>`).join("")}
+          </select>
+          <button class="btn btn-red" onclick="doAddFijo()">+ Agregar</button>
+        </div>
+      </div>
+      ${fijos.length > 0 ? `
+        ${fijoRows}
+        <div class="total-row" style="margin-top:4px">
+          <span style="color:var(--text2)">Total fijos</span>
+          <span style="color:var(--red)">${fGs(totalFijos)}/mes</span>
+        </div>` : `<div class="empty">Sin gastos fijos cargados</div>`}
+    </div>
+
+    <div class="section" style="padding-bottom:20px">
+      <div class="section-head"><div class="section-title red">Zona peligrosa</div></div>
+      <div class="form-card">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Borrá todos los datos de la app. Esta acción no se puede deshacer.</div>
+        <button class="btn" style="background:#F45B6918;border:1px solid #F45B6940;color:var(--red);width:100%" onclick="doReset()">🗑 Borrar todos los datos</button>
+      </div>
+    </div>
+  `;
+}
+
+function updateCfg(key, val) {
+  const cfg = getCfg();
+  cfg[key] = Number(val) || 0;
+  saveCfg(cfg);
+}
+
+function doAddFijo() {
+  const desc = document.getElementById("fijo-desc").value.trim();
+  const monto = Number(document.getElementById("fijo-monto").value);
+  const cat = document.getElementById("fijo-cat").value;
+  if (!desc || !monto) return;
+  if (!DB._fijos) DB._fijos = [];
+  DB._fijos.push({ desc, monto, cat });
+  save(DB);
+  render();
+}
+
+function doDelFijo(i) {
+  DB._fijos.splice(i, 1);
+  save(DB);
+  render();
+}
+
+function doReset() {
+  if (confirm("¿Seguro que querés borrar TODOS los datos? No se puede deshacer.")) {
+    localStorage.removeItem("mf_v2");
+    DB = {};
+    render();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER PRINCIPAL
+// ═══════════════════════════════════════════════════════
+function render() {
+  const el = document.getElementById("main-content");
+  let html = "";
+  if (tabActual === "resumen") html = renderResumen();
+  else if (tabActual === "movimientos") html = renderMovimientos();
+  else if (tabActual === "proyeccion") html = renderProyeccion();
+  else if (tabActual === "deudas") html = renderDeudas();
+  else if (tabActual === "config") html = renderConfig();
+  el.innerHTML = html;
+
+  // Setear fecha de hoy en el input
+  if (tabActual === "movimientos") {
+    const fi = document.getElementById("mov-fecha");
+    if (fi && !fi.value) {
+      const d = new Date();
+      fi.value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    }
+    // Actualizar cat-row
+    const cr = document.getElementById("cat-row");
+    if (cr) cr.style.display = fTipo !== "Gasto" ? "none" : "";
+  }
+}
+
+updateNavMes();
+render();
+</script>
+</body>
+</html>
